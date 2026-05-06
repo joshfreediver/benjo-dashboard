@@ -1,245 +1,229 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benjo's Slim Monitor v19.2</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; margin: 0; padding: 0; background: linear-gradient(135deg, #00308F, #001f3f, #007aff); overflow-x: hidden; }
+        
+        .dashboard-container { padding: 10px; min-height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; }
+        .dashboard { display: flex; flex-direction: column; width: 100%; max-width: 380px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); color: white; padding-bottom: 20px; }
+        
+        .macos-header { display: flex; gap: 8px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
+        .stoplight { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+        .sl-red { background: #ff5f56; } .sl-yellow { background: #ffbd2e; } .sl-green { background: #27c93f; }
+        
+        .main-content { display: flex; flex-direction: column; padding: 12px; gap: 12px; }
+        .total-banner { background: #34c759; color: white; padding: 10px; border-radius: 12px; text-align: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        .tracker-card { background: rgba(0, 0, 0, 0.25); border-radius: 15px; padding: 15px; border: 1px solid rgba(255,255,255,0.15); }
+        .report-header { font-weight: 800; font-size: 18px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+        
+        .metric-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .metric-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }
+        .metric-controls { display: flex; align-items: center; gap: 8px; }
+        
+        .count-btn { background: #ffffff; color: #007aff; border: none; border-radius: 6px; width: 28px; height: 28px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .count-val { min-width: 30px; text-align: center; font-weight: 700; font-size: 16px; }
+        
+        .hourly-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 8px; width: 100%; margin-top: 6px; font-size: 13px; outline: none; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .report-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .copy-btn { background: #007aff; color: white; }
+        .reset-btn { background: #34c759; color: white; }
+        .report-btn:active { transform: scale(0.96); }
+
+        .ph-time { font-size: 42px; font-weight: 800; text-align: center; margin-top: 5px; letter-spacing: -1px; }
+        .ph-date { font-size: 14px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 10px; font-weight: 600; }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Benjo's Slim Monitor v19.2&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>html, body { height: 100%; margin: 0; padding: 0; background: linear-gradient(135deg, #00308F, #001f3f, #007aff); overflow-x: hidden; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.dashboard-container { padding: 10px; min-height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.dashboard { display: flex; flex-direction: column; width: 100%; max-width: 380px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); color: white; padding-bottom: 20px; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.macos-header { display: flex; gap: 8px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.stoplight { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.sl-red { background: #ff5f56; } .sl-yellow { background: #ffbd2e; } .sl-green { background: #27c93f; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.main-content { display: flex; flex-direction: column; padding: 12px; gap: 12px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.total-banner { background: #34c759; color: white; padding: 10px; border-radius: 12px; text-align: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.tracker-card { background: rgba(0, 0, 0, 0.25); border-radius: 15px; padding: 15px; border: 1px solid rgba(255,255,255,0.15); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.report-header { font-weight: 800; font-size: 18px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.metric-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.metric-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.metric-controls { display: flex; align-items: center; gap: 8px; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.count-btn { background: #ffffff; color: #007aff; border: none; border-radius: 6px; width: 28px; height: 28px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.count-val { min-width: 30px; text-align: center; font-weight: 700; font-size: 16px; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.hourly-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 8px; width: 100%; margin-top: 6px; font-size: 13px; outline: none; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn-group { display: flex; gap: 10px; margin-top: 15px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.report-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.copy-btn { background: #007aff; color: white; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.reset-btn { background: #34c759; color: white; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.report-btn:active { transform: scale(0.96); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.ph-time { font-size: 42px; font-weight: 800; text-align: center; margin-top: 5px; letter-spacing: -1px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.ph-date { font-size: 14px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 10px; font-weight: 600; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div class="dashboard-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="dashboard"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="macos-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="stoplight sl-red" onclick="location.reload()"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="stoplight sl-yellow"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="stoplight sl-green"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="ph-time" id="clock"&gt;00:00:00&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="ph-date" id="date"&gt;-- -- ----&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;main class="main-content"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="total-banner" id="shift-total-banner"&gt;Total Emails Closed: 0&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="tracker-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="report-header"&gt;Reporting Period&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="metric-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="metric-label"&gt;Date&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="report-date" style="font-weight:700;"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="metric-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="metric-label"&gt;Hour (as of)&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="report-hour" style="font-weight:700; color: #ffbd2e;"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="metrics-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- JS generated rows --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="text" id="pending-task-text" class="hourly-input" placeholder="Pending Task (e.g. 5 emails)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;textarea id="remarks-text" class="hourly-input" rows="2" placeholder="Remarks (e.g. Ticket link/Complex issue)"&gt;&lt;/textarea&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="btn-group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="report-btn copy-btn" onclick="copyTableToTeams()"&gt;COPY REPORT&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="report-btn reset-btn" onclick="generateReport()"&gt;GENERATE REPORT&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/main&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const metrics = [</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ id: 'email-assigned', label: 'Email – Assigned' },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ id: 'email-replied', label: 'Email – Replied' },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ id: 'email-closed', label: 'Email – Closed' },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ id: 'attentive-handled', label: 'Attentive – Handled' },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ id: 'socmed-handled', label: 'SocMed – Handled' }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let counts = {};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let shiftTotalClosed = parseInt(localStorage.getItem('shiftTotalClosed')) || 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function init() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const container = document.getElementById('metrics-container');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>metrics.forEach(m =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>counts[m.id] = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const row = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>row.className = 'metric-row';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>row.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="metric-label"&gt;${m.label}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="metric-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="count-btn" onclick="updateCount('${m.id}', -1)"&gt;-&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="count-val" id="val-${m.id}"&gt;0&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="count-btn" onclick="updateCount('${m.id}', 1)"&gt;+&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(row);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateShiftBanner();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateTimeDisplays();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateCount(id, delta) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>counts[id] = Math.max(0, counts[id] + delta);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById(`val-${id}`).innerText = counts[id];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateShiftBanner() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('shift-total-banner').innerText = `Total Emails Closed: ${shiftTotalClosed}`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateTimeDisplays() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const now = new Date();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const options = { year: 'numeric', month: 'numeric', day: 'numeric' };</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('report-date').innerText = now.toLocaleDateString('en-US', options);</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const prev = new Date(now);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>prev.setHours(now.getHours() - 1);</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const fmt = (d) =&gt; d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const start = new Date(prev); start.setMinutes(0);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const end = new Date(now); end.setMinutes(0);</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('report-hour').innerText = `${fmt(start)} - ${fmt(end)}`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function generateReport() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>shiftTotalClosed += counts['email-closed'];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>localStorage.setItem('shiftTotalClosed', shiftTotalClosed);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateShiftBanner();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>metrics.forEach(m =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>counts[m.id] = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(`val-${m.id}`).innerText = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('pending-task-text').value = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('remarks-text').value = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateTimeDisplays();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>showToast("Report Reset &amp; Total Saved!");</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>async function copyTableToTeams() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const date = document.getElementById('report-date').innerText;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const hour = document.getElementById('report-hour').innerText;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const pending = document.getElementById('pending-task-text').value || "0";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const remarks = document.getElementById('remarks-text').value || "None";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// HTML Table logic matching image_b03031.png structure</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let htmlTable = `</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td colspan="2" style="padding: 5px; font-size: 20px; font-weight: bold;"&gt;Reporting Period&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px; width: 40%;"&gt;Date&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${date}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;Hour (as of)&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${hour}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td colspan="2" style="padding: 5px; font-weight: bold;"&gt;Task&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>${metrics.map(m =&gt; `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${m.label}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${counts[m.id]}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;`).join('')}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;Pending Task&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${pending}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px; vertical-align: top;"&gt;Remarks&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td style="padding: 5px;"&gt;${remarks.replace(/\n/g, '&lt;br&gt;')}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const type = "text/html";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const blob = new Blob([htmlTable], { type });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const data = [new ClipboardItem({ [type]: blob })];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>await navigator.clipboard.write(data);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>showToast("Table Copied for Teams!");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} catch (err) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>console.error("Copy failed", err);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function showToast(msg) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const toast = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>toast.style = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#34c759; color:white; padding:12px 24px; border-radius:25px; z-index:9999; font-weight:bold;";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>toast.innerText = msg;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.body.appendChild(toast);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; toast.remove(), 2000);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const now = new Date();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}, 1000);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>window.onload = init;</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div class="dashboard-container">
+    <div class="dashboard">
+        <header class="macos-header">
+            <div class="stoplight sl-red" onclick="location.reload()"></div>
+            <div class="stoplight sl-yellow"></div>
+            <div class="stoplight sl-green"></div>
+        </header>
+
+        <div class="ph-time" id="clock">00:00:00</div>
+        <div class="ph-date" id="date">-- -- ----</div>
+
+        <main class="main-content">
+            <div class="total-banner" id="shift-total-banner">Total Emails Closed: 0</div>
+
+            <div class="tracker-card">
+                <div class="report-header">Reporting Period</div>
+                
+                <div class="metric-row">
+                    <span class="metric-label">Date</span>
+                    <span id="report-date" style="font-weight:700;"></span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Hour (as of)</span>
+                    <span id="report-hour" style="font-weight:700; color: #ffbd2e;"></span>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
+
+                <div id="metrics-container">
+                    <!-- JS generated rows -->
+                </div>
+
+                <input type="text" id="pending-task-text" class="hourly-input" placeholder="Pending Task (e.g. 5 emails)">
+                <textarea id="remarks-text" class="hourly-input" rows="2" placeholder="Remarks (e.g. Ticket link/Complex issue)"></textarea>
+
+                <div class="btn-group">
+                    <button class="report-btn copy-btn" onclick="copyTableToTeams()">COPY REPORT</button>
+                    <button class="report-btn reset-btn" onclick="generateReport()">GENERATE REPORT</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const metrics = [
+        { id: 'email-assigned', label: 'Email – Assigned' },
+        { id: 'email-replied', label: 'Email – Replied' },
+        { id: 'email-closed', label: 'Email – Closed' },
+        { id: 'attentive-handled', label: 'Attentive – Handled' },
+        { id: 'socmed-handled', label: 'SocMed – Handled' }
+    ];
+
+    let counts = {};
+    let shiftTotalClosed = parseInt(localStorage.getItem('shiftTotalClosed')) || 0;
+
+    function init() {
+        const container = document.getElementById('metrics-container');
+        metrics.forEach(m => {
+            counts[m.id] = 0;
+            const row = document.createElement('div');
+            row.className = 'metric-row';
+            row.innerHTML = `
+                <span class="metric-label">${m.label}</span>
+                <div class="metric-controls">
+                    <button class="count-btn" onclick="updateCount('${m.id}', -1)">-</button>
+                    <span class="count-val" id="val-${m.id}">0</span>
+                    <button class="count-btn" onclick="updateCount('${m.id}', 1)">+</button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+        updateShiftBanner();
+        updateTimeDisplays();
+    }
+
+    function updateCount(id, delta) {
+        counts[id] = Math.max(0, counts[id] + delta);
+        document.getElementById(`val-${id}`).innerText = counts[id];
+    }
+
+    function updateShiftBanner() {
+        document.getElementById('shift-total-banner').innerText = `Total Emails Closed: ${shiftTotalClosed}`;
+    }
+
+    function updateTimeDisplays() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+        document.getElementById('report-date').innerText = now.toLocaleDateString('en-US', options);
+        
+        const prev = new Date(now);
+        prev.setHours(now.getHours() - 1);
+        
+        const fmt = (d) => d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const start = new Date(prev); start.setMinutes(0);
+        const end = new Date(now); end.setMinutes(0);
+        
+        document.getElementById('report-hour').innerText = `${fmt(start)} - ${fmt(end)}`;
+    }
+
+    function generateReport() {
+        shiftTotalClosed += counts['email-closed'];
+        localStorage.setItem('shiftTotalClosed', shiftTotalClosed);
+        updateShiftBanner();
+
+        metrics.forEach(m => {
+            counts[m.id] = 0;
+            document.getElementById(`val-${m.id}`).innerText = 0;
+        });
+        
+        document.getElementById('pending-task-text').value = "";
+        document.getElementById('remarks-text').value = "";
+        updateTimeDisplays();
+        showToast("Report Reset & Total Saved!");
+    }
+
+    async function copyTableToTeams() {
+        const date = document.getElementById('report-date').innerText;
+        const hour = document.getElementById('report-hour').innerText;
+        const pending = document.getElementById('pending-task-text').value || "0";
+        const remarks = document.getElementById('remarks-text').value || "None";
+
+        // HTML Table logic matching image_b03031.png structure
+        let htmlTable = `
+            <table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif;">
+                <tr>
+                    <td colspan="2" style="padding: 5px; font-size: 20px; font-weight: bold;">Reporting Period</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; width: 40%;">Date</td>
+                    <td style="padding: 5px;">${date}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px;">Hour (as of)</td>
+                    <td style="padding: 5px;">${hour}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding: 5px; font-weight: bold;">Task</td>
+                </tr>
+                ${metrics.map(m => `
+                <tr>
+                    <td style="padding: 5px;">${m.label}</td>
+                    <td style="padding: 5px;">${counts[m.id]}</td>
+                </tr>`).join('')}
+                <tr>
+                    <td style="padding: 5px;">Pending Task</td>
+                    <td style="padding: 5px;">${pending}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; vertical-align: top;">Remarks</td>
+                    <td style="padding: 5px;">${remarks.replace(/\n/g, '<br>')}</td>
+                </tr>
+            </table>
+        `;
+
+        const type = "text/html";
+        const blob = new Blob([htmlTable], { type });
+        const data = [new ClipboardItem({ [type]: blob })];
+
+        try {
+            await navigator.clipboard.write(data);
+            showToast("Table Copied for Teams!");
+        } catch (err) {
+            console.error("Copy failed", err);
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.style = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#34c759; color:white; padding:12px 24px; border-radius:25px; z-index:9999; font-weight:bold;";
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        document.getElementById('date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+    }, 1000);
+
+    window.onload = init;
+</script>
 </body>
 </html>
