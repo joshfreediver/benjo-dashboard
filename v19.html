@@ -46,7 +46,7 @@
     <div class="dashboard">
         <header class="macos-header">
             <div class="stoplight sl-red" onclick="location.reload()"></div>
-            <div class="stoplight sl-yellow"></div>
+            <div class="stoplight sl-yellow" onclick="resetShiftTotal()" title="Reset Total Emails"></div>
             <div class="stoplight sl-green"></div>
         </header>
 
@@ -216,7 +216,14 @@
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
     }
-
+function resetShiftTotal() {
+    if (confirm("Reset total emails closed for this shift?")) {
+        shiftTotalClosed = 0;
+        localStorage.setItem('shiftTotalClosed', "0");
+        updateShiftBanner();
+        showToast("Shift total reset!");
+    }
+}
     setInterval(() => {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
@@ -224,6 +231,7 @@
     }, 1000);
 
     window.onload = init;
+    
 </script>
 </body>
 </html>
