@@ -10,6 +10,7 @@
       margin: 0;
       height: 100%;
       background: linear-gradient(135deg, #00308F, #001f3f, #007aff);
+      overflow: hidden; /* Prevents the main page from scrolling */
     }
 
     .container {
@@ -25,9 +26,17 @@
       flex: 1;
       border: none;
       border-radius: 16px;
-      overflow: hidden;
       box-shadow: 0 20px 50px rgba(0,0,0,0.3);
       background: transparent;
+      
+      /* Hides scrollbars in Firefox and Edge */
+      scrollbar-width: none; 
+      -ms-overflow-style: none; 
+    }
+
+    /* Hides scrollbars in Chrome, Safari, and Opera */
+    iframe::-webkit-scrollbar {
+      display: none;
     }
   </style>
 </head>
@@ -35,7 +44,7 @@
 <body>
   <div class="container">
     <iframe src="/benjo-dashboard/v19.html"></iframe>
-<iframe src="/benjo-dashboard/v18.html"></iframe>
+    <iframe src="/benjo-dashboard/v18.html"></iframe>
   </div>
 </body>
 </html>
