@@ -71,8 +71,7 @@
                 <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
 
                 <div id="metrics-container">
-                    <!-- JS generated rows -->
-                </div>
+                    </div>
 
                 <input type="text" id="pending-task-text" class="hourly-input" placeholder="Pending Task (e.g. 5 emails)">
                 <textarea id="remarks-text" class="hourly-input" rows="2" placeholder="Remarks (e.g. Ticket link/Complex issue)"></textarea>
@@ -115,7 +114,7 @@
             container.appendChild(row);
         });
         updateShiftBanner();
-        updateTimeDisplays();
+        updateTimeDisplays(); // Sets the block based on the current time at launch
     }
 
     function updateCount(id, delta) {
@@ -127,17 +126,19 @@
         document.getElementById('shift-total-banner').innerText = `Total Emails Closed: ${shiftTotalClosed}`;
     }
 
+    // Logic: 2:15 PM -> 2:00 PM - 3:00 PM
     function updateTimeDisplays() {
         const now = new Date();
         const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
         document.getElementById('report-date').innerText = now.toLocaleDateString('en-US', options);
         
-        const prev = new Date(now);
-        prev.setHours(now.getHours() - 1);
-        
         const fmt = (d) => d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        const start = new Date(prev); start.setMinutes(0);
-        const end = new Date(now); end.setMinutes(0);
+        
+        const start = new Date(now); 
+        start.setMinutes(0, 0, 0);
+        
+        const end = new Date(now);
+        end.setHours(now.getHours() + 1, 0, 0, 0);
         
         document.getElementById('report-hour').innerText = `${fmt(start)} - ${fmt(end)}`;
     }
@@ -154,7 +155,9 @@
         
         document.getElementById('pending-task-text').value = "";
         document.getElementById('remarks-text').value = "";
-        updateTimeDisplays();
+        
+        // Manual update: Hour block only changes when you click Generate Report
+        updateTimeDisplays(); 
         showToast("Report Reset & Total Saved!");
     }
 
@@ -164,36 +167,16 @@
         const pending = document.getElementById('pending-task-text').value || "0";
         const remarks = document.getElementById('remarks-text').value || "None";
 
-        // HTML Table logic matching image_b03031.png structure
         let htmlTable = `
             <table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif;">
-                <tr>
-                    <td colspan="2" style="padding: 5px; font-size: 20px; font-weight: bold;">Reporting Period</td>
-                </tr>
-                <tr>
-                    <td style="padding: 5px; width: 40%;">Date</td>
-                    <td style="padding: 5px;">${date}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 5px;">Hour (as of)</td>
-                    <td style="padding: 5px;">${hour}</td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="padding: 5px; font-weight: bold;">Task</td>
-                </tr>
+                <tr><td colspan="2" style="padding: 5px; font-size: 20px; font-weight: bold;">Reporting Period</td></tr>
+                <tr><td style="padding: 5px; width: 40%;">Date</td><td style="padding: 5px;">${date}</td></tr>
+                <tr><td style="padding: 5px;">Hour (as of)</td><td style="padding: 5px;">${hour}</td></tr>
+                <tr><td colspan="2" style="padding: 5px; font-weight: bold;">Task</td></tr>
                 ${metrics.map(m => `
-                <tr>
-                    <td style="padding: 5px;">${m.label}</td>
-                    <td style="padding: 5px;">${counts[m.id]}</td>
-                </tr>`).join('')}
-                <tr>
-                    <td style="padding: 5px;">Pending Task</td>
-                    <td style="padding: 5px;">${pending}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 5px; vertical-align: top;">Remarks</td>
-                    <td style="padding: 5px;">${remarks.replace(/\n/g, '<br>')}</td>
-                </tr>
+                <tr><td style="padding: 5px;">${m.label}</td><td style="padding: 5px;">${counts[m.id]}</td></tr>`).join('')}
+                <tr><td style="padding: 5px;">Pending Task</td><td style="padding: 5px;">${pending}</td></tr>
+                <tr><td style="padding: 5px; vertical-align: top;">Remarks</td><td style="padding: 5px;">${remarks.replace(/\n/g, '<br>')}</td></tr>
             </table>
         `;
 
@@ -216,14 +199,17 @@
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
     }
-function resetShiftTotal() {
-    if (confirm("Reset total emails closed for this shift?")) {
-        shiftTotalClosed = 0;
-        localStorage.setItem('shiftTotalClosed', "0");
-        updateShiftBanner();
-        showToast("Shift total reset!");
+
+    function resetShiftTotal() {
+        if (confirm("Reset total emails closed for this shift?")) {
+            shiftTotalClosed = 0;
+            localStorage.setItem('shiftTotalClosed', "0");
+            updateShiftBanner();
+            showToast("Shift total reset!");
+        }
     }
-}
+
+    // Only updates the digital clock and date strings, NOT the reporting hour block
     setInterval(() => {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
@@ -231,7 +217,6 @@ function resetShiftTotal() {
     }, 1000);
 
     window.onload = init;
-    
 </script>
 </body>
 </html>
