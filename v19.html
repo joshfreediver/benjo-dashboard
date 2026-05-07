@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benjo's Slim Monitor v19.2</title>
+    <title>Benjo's Slim Monitor v19.3</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; margin: 0; padding: 0; background: linear-gradient(135deg, #00308F, #001f3f, #007aff); overflow-x: hidden; }
@@ -30,11 +30,15 @@
         
         .hourly-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 8px; width: 100%; margin-top: 6px; font-size: 13px; outline: none; }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .report-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .btn-row { display: flex; gap: 8px; width: 100%; }
+        .report-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 12px; text-transform: uppercase; }
+        
         .copy-btn { background: #007aff; color: white; }
         .reset-btn { background: #34c759; color: white; }
-        .report-btn:active { transform: scale(0.96); }
+        .hour-btn { background: #ffbd2e; color: #000; }
+        
+        .report-btn:active { transform: scale(0.96); opacity: 0.9; }
 
         .ph-time { font-size: 42px; font-weight: 800; text-align: center; margin-top: 5px; letter-spacing: -1px; }
         .ph-date { font-size: 14px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 10px; font-weight: 600; }
@@ -70,15 +74,17 @@
 
                 <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
 
-                <div id="metrics-container">
-                    </div>
+                <div id="metrics-container"></div>
 
                 <input type="text" id="pending-task-text" class="hourly-input" placeholder="Pending Task (e.g. 5 emails)">
                 <textarea id="remarks-text" class="hourly-input" rows="2" placeholder="Remarks (e.g. Ticket link/Complex issue)"></textarea>
 
                 <div class="btn-group">
-                    <button class="report-btn copy-btn" onclick="copyTableToTeams()">COPY REPORT</button>
-                    <button class="report-btn reset-btn" onclick="generateReport()">GENERATE REPORT</button>
+                    <button class="report-btn hour-btn" onclick="nextHourBlock()">+ 1 Hour Block</button>
+                    <div class="btn-row">
+                        <button class="report-btn copy-btn" onclick="copyTableToTeams()">Copy Report</button>
+                        <button class="report-btn reset-btn" onclick="generateReport()">Finish & Reset</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -96,6 +102,8 @@
 
     let counts = {};
     let shiftTotalClosed = parseInt(localStorage.getItem('shiftTotalClosed')) || 0;
+    let currentBaseTime = new Date(); // Track the base time for the report block
+    currentBaseTime.setMinutes(0, 0, 0);
 
     function init() {
         const container = document.getElementById('metrics-container');
@@ -114,7 +122,7 @@
             container.appendChild(row);
         });
         updateShiftBanner();
-        updateTimeDisplays(); // Sets the block based on the current time at launch
+        updateTimeDisplays(); 
     }
 
     function updateCount(id, delta) {
@@ -126,21 +134,24 @@
         document.getElementById('shift-total-banner').innerText = `Total Emails Closed: ${shiftTotalClosed}`;
     }
 
-    // Logic: 2:15 PM -> 2:00 PM - 3:00 PM
     function updateTimeDisplays() {
-        const now = new Date();
         const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-        document.getElementById('report-date').innerText = now.toLocaleDateString('en-US', options);
+        document.getElementById('report-date').innerText = currentBaseTime.toLocaleDateString('en-US', options);
         
         const fmt = (d) => d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         
-        const start = new Date(now); 
-        start.setMinutes(0, 0, 0);
-        
-        const end = new Date(now);
-        end.setHours(now.getHours() + 1, 0, 0, 0);
+        const start = new Date(currentBaseTime); 
+        const end = new Date(currentBaseTime);
+        end.setHours(currentBaseTime.getHours() + 1);
         
         document.getElementById('report-hour').innerText = `${fmt(start)} - ${fmt(end)}`;
+    }
+
+    // Function specifically for the new button
+    function nextHourBlock() {
+        currentBaseTime.setHours(currentBaseTime.getHours() + 1);
+        updateTimeDisplays();
+        showToast("Hour Block Updated!");
     }
 
     function generateReport() {
@@ -148,6 +159,7 @@
         localStorage.setItem('shiftTotalClosed', shiftTotalClosed);
         updateShiftBanner();
 
+        // Reset local counts
         metrics.forEach(m => {
             counts[m.id] = 0;
             document.getElementById(`val-${m.id}`).innerText = 0;
@@ -156,9 +168,11 @@
         document.getElementById('pending-task-text').value = "";
         document.getElementById('remarks-text').value = "";
         
-        // Manual update: Hour block only changes when you click Generate Report
+        // Advance time to current actual hour
+        currentBaseTime = new Date();
+        currentBaseTime.setMinutes(0,0,0);
         updateTimeDisplays(); 
-        showToast("Report Reset & Total Saved!");
+        showToast("Report Finalized & Counts Reset!");
     }
 
     async function copyTableToTeams() {
@@ -169,14 +183,14 @@
 
         let htmlTable = `
             <table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif;">
-                <tr><td colspan="2" style="padding: 5px; font-size: 20px; font-weight: bold;">Reporting Period</td></tr>
-                <tr><td style="padding: 5px; width: 40%;">Date</td><td style="padding: 5px;">${date}</td></tr>
-                <tr><td style="padding: 5px;">Hour (as of)</td><td style="padding: 5px;">${hour}</td></tr>
-                <tr><td colspan="2" style="padding: 5px; font-weight: bold;">Task</td></tr>
+                <tr style="background-color: #f2f2f2;"><td colspan="2" style="padding: 8px; font-size: 18px; font-weight: bold; text-align: center;">Hourly Activity Report</td></tr>
+                <tr><td style="padding: 5px; width: 40%; font-weight: bold;">Date</td><td style="padding: 5px;">${date}</td></tr>
+                <tr><td style="padding: 5px; font-weight: bold;">Hour (as of)</td><td style="padding: 5px;">${hour}</td></tr>
+                <tr><td colspan="2" style="padding: 5px; background-color: #f9f9f9; font-weight: bold;">Metrics</td></tr>
                 ${metrics.map(m => `
                 <tr><td style="padding: 5px;">${m.label}</td><td style="padding: 5px;">${counts[m.id]}</td></tr>`).join('')}
-                <tr><td style="padding: 5px;">Pending Task</td><td style="padding: 5px;">${pending}</td></tr>
-                <tr><td style="padding: 5px; vertical-align: top;">Remarks</td><td style="padding: 5px;">${remarks.replace(/\n/g, '<br>')}</td></tr>
+                <tr><td style="padding: 5px; font-weight: bold;">Pending Task</td><td style="padding: 5px;">${pending}</td></tr>
+                <tr><td style="padding: 5px; font-weight: bold; vertical-align: top;">Remarks</td><td style="padding: 5px;">${remarks.replace(/\n/g, '<br>')}</td></tr>
             </table>
         `;
 
@@ -186,7 +200,7 @@
 
         try {
             await navigator.clipboard.write(data);
-            showToast("Table Copied for Teams!");
+            showToast("Table Copied!");
         } catch (err) {
             console.error("Copy failed", err);
         }
@@ -194,7 +208,7 @@
 
     function showToast(msg) {
         const toast = document.createElement('div');
-        toast.style = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#34c759; color:white; padding:12px 24px; border-radius:25px; z-index:9999; font-weight:bold;";
+        toast.style = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#34c759; color:white; padding:12px 24px; border-radius:25px; z-index:9999; font-weight:bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);";
         toast.innerText = msg;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
@@ -209,7 +223,6 @@
         }
     }
 
-    // Only updates the digital clock and date strings, NOT the reporting hour block
     setInterval(() => {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
