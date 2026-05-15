@@ -231,5 +231,121 @@
 
     window.onload = init;
 </script>
+    <!-- ADD THIS RIGHT BEFORE </body> -->
+
+<script>
+    // =========================
+    // HOURLY CHIME SYSTEM
+    // =========================
+
+    let lastChimeHour = null;
+    let audioUnlocked = false;
+
+    // Create Web Audio API context
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Unlock audio after first user interaction
+    function unlockAudio() {
+        if (audioUnlocked) return;
+
+        audioCtx.resume().then(() => {
+            audioUnlocked = true;
+            console.log("Audio unlocked");
+        });
+    }
+
+    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+
+    // Mac-style soft hourly chime
+    function playHourlyChime() {
+        if (!audioUnlocked) return;
+
+        const now = audioCtx.currentTime;
+
+        const frequencies = [523.25, 659.25, 783.99]; // C E G
+
+        frequencies.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.value = freq;
+
+            gain.gain.setValueAtTime(0, now + (i * 0.25));
+            gain.gain.linearRampToValueAtTime(0.18, now + (i * 0.25) + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.25) + 1);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now + (i * 0.25));
+            osc.stop(now + (i * 0.25) + 1);
+        });
+
+        showToast("⏰ Hourly Chime");
+    }
+
+    // Check every second
+    function checkHourlyChime() {
+        const now = new Date();
+
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const currentSecond = now.getSeconds();
+
+        // Trigger exactly at XX:00:00
+        if (
+            currentMinute === 0 &&
+            currentSecond === 0 &&
+            lastChimeHour !== currentHour
+        ) {
+            lastChimeHour = currentHour;
+            playHourlyChime();
+        }
+
+        // Reset tracker after minute passes
+        if (currentMinute !== 0) {
+            if (lastChimeHour === currentHour) return;
+        }
+    }
+
+    setInterval(checkHourlyChime, 1000);
+
+    // =========================
+    // KEEP TAB ACTIVE LONGER
+    // =========================
+
+    // Helps prevent timer throttling
+    // especially in Chromium browsers
+
+    let wakeLock = null;
+
+    async function requestWakeLock() {
+        try {
+            if ("wakeLock" in navigator) {
+                wakeLock = await navigator.wakeLock.request("screen");
+
+                wakeLock.addEventListener("release", () => {
+                    console.log("Wake Lock released");
+                });
+
+                console.log("Wake Lock active");
+            }
+        } catch (err) {
+            console.log("Wake Lock error:", err);
+        }
+    }
+
+    document.addEventListener("visibilitychange", async () => {
+        if (wakeLock !== null && document.visibilityState === "visible") {
+            await requestWakeLock();
+        }
+    });
+
+    requestWakeLock();
+
+</script>
 </body>
 </html>
