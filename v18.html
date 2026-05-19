@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benjo's Slim Monitor v18.5</title>
+    <title>Benjo's Slim Monitor v18.1</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         
@@ -32,7 +32,8 @@
         .stoplight { width: 12px; height: 12px; border-radius: 50%; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; color: transparent; font-weight: bold; transition: color 0.2s; }
         .sl-red { background: #ff5f56; }
         .sl-red:hover { color: rgba(0,0,0,0.5); }
-        .sl-yellow { background: #ffbd2e; opacity: 0.5; }
+        .sl-yellow { background: #ffbd2e; }
+        .sl-yellow:hover { color: rgba(0,0,0,0.5); }
         .sl-green { background: #27c93f; }
         .sl-green:hover { color: rgba(0,0,0,0.5); }
         
@@ -44,18 +45,20 @@
         .ph-time { font-size: 5vh; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.2; }
         .ph-date { font-size: 1.8vh; color: rgba(255,255,255,0.6); font-weight: 600; margin-bottom: 15px; }
         
+        .ticket-counter {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px; width: 100%; padding: 12px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; padding-left: 20px; padding-right: 20px; flex-direction: row-reverse;
+        }
+        .tc-label { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 800; text-transform: uppercase; }
+        .tc-count { font-size: 32px; font-weight: 800; color: #ffbd2e; line-height: 1; }
+
         .ticket-tracker-area { 
             background: rgba(0, 0, 0, 0.2); border-radius: 18px; 
             display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%; margin-top: 5px;
         }
         .tt-header { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        
-        /* New Label Row Styling */
-        .tc-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .tc-label { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .snooze-count-pill { background: #007aff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; min-width: 24px; text-align: center; }
-
         .tt-input-group { display: flex; gap: 8px; align-items: center; }
         .tt-input { 
             flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
@@ -90,24 +93,29 @@
             font-size: 10px; font-weight: 800; color: #ffffff; z-index: 1; 
             padding: 0 8px; letter-spacing: 0.5px;
         }
+        .label-24h, .label-2h { transition: opacity 0.2s; }
+        .toggle-checkbox:not(:checked) ~ .toggle-label .label-2h { opacity: 0.2; }
+        .toggle-checkbox:checked ~ .toggle-label .label-24h { opacity: 0.2; }
 
         .tt-add-btn { background: #34c759; border: none; color: white; border-radius: 8px; height: 32px; padding: 0 12px; cursor: pointer; font-weight: bold; flex-shrink: 0; }
         
-        .tt-list { max-height: 220px; overflow-y: auto; padding: 10px; }
+        .tt-list { max-height: 180px; overflow-y: auto; padding: 10px; }
         .tt-item { 
             background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; 
             margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; transition: background 0.2s;
         }
+        .tt-item:active { background: rgba(255,255,255,0.3); }
+        .tt-item-left { display: flex; align-items: center; gap: 10px; }
+        .tt-item-num { font-weight: 800; font-size: 14px; color: #007aff; }
         .tt-item-timer { font-family: "SF Mono", monospace; font-size: 14px; color: #ffffff; }
-        .tt-item.low-time { border: 1px solid #ff9500; }
-        .tt-item.low-time .tt-item-timer { color: #ff9500; }
 
         .main-content { display: flex; flex-direction: column; padding: 15px; gap: 15px; }
         .card { 
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 18px; padding: 15px; text-align: center; 
             display: flex; flex-direction: column; align-items: center;
+            transition: opacity 0.5s ease;
         }
 
         .label-input { background: transparent; border: none; color: #ffffff; font-size: 18px; text-align: center; width: 100%; font-weight: 800; text-transform: uppercase; outline: none; margin-bottom: 5px; }
@@ -130,7 +138,7 @@
     <div class="dashboard">
         <header class="macos-header">
             <button class="stoplight sl-red" onclick="shiftReset()" title="Shift Reset & Reload">×</button>
-            <button class="stoplight sl-yellow" title="Status: Active">•</button>
+            <button class="stoplight sl-yellow" onclick="clearAllSnoozed()" title="Clear All Snoozed Tickets">−</button>
             <button class="stoplight sl-green" onclick="copyAttendance()" title="Copy Attendance">+</button>
         </header>
 
@@ -138,12 +146,14 @@
             <div class="ph-time" id="clock">00:00:00</div>
             <div class="ph-date" id="date">Loading...</div>
             
+            <div class="ticket-counter">
+                <span class="tc-label">Snoozed Tickets</span>
+                <div class="tc-count" id="snoozed-count">0</div>
+            </div>
+
             <div class="ticket-tracker-area">
                 <div class="tt-header">
-                    <div class="tc-label-row">
-                        <div class="snooze-count-pill" id="snooze-count">0</div>
-                        <div class="tc-label">Snoozed Tickets</div>
-                    </div>
+                    <div class="tc-label" style="margin-bottom:8px;">Snoozed Ticket Tracker</div>
                     <div class="tt-input-group">
                         <input type="text" id="tt-input" class="tt-input" placeholder="Ticket #" onkeydown="if(event.key==='Enter') addLiveTicket()">
                         
@@ -197,6 +207,7 @@
     let fiveMinWarningTriggered = [false, false, false];
     let activeTimers = {}; 
     let audioCtx = null;
+    let ticketIntervals = {}; 
 
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -204,16 +215,11 @@
     }
     document.addEventListener('click', initAudio, { once: true });
 
-    function updateSnoozeCount() {
-        const count = document.querySelectorAll('.tt-item').length;
-        document.getElementById('snooze-count').innerText = count;
-    }
-
     function getETDate() {
         return new Date().toLocaleDateString("en-US", {timeZone: "America/New_York", month: 'long', day: 'numeric', year: 'numeric'});
     }
 
-    async function shiftReset() {
+    function shiftReset() {
         const items = document.querySelectorAll('.tt-item');
         let reportText = "Snoozed Tickets Report:\n";
         
@@ -227,25 +233,48 @@
             });
         }
 
-        try {
-            await navigator.clipboard.writeText(reportText);
+        navigator.clipboard.writeText(reportText).then(() => {
             alert("Shift report copied to clipboard. Resetting now...");
             location.reload();
-        } catch(err) {
+        }).catch(err => {
+            console.error("Report copy failed", err);
             location.reload();
-        }
+        });
     }
 
-    async function copyAttendance() {
+    function copyAttendance() {
         const etDateStr = getETDate();
-        const attendanceText = `Attendance:\nShift date: ${etDateStr}\n\nName: Ben Joseph Barliso\nLogged in: 12:00 PM\nGood morning!\n${etDateStr}\nTime In 12PM`;
+        const attendanceText = `Attendance:
+Shift date: ${etDateStr}
+ 
+Name: Ben Joseph Barliso
+Logged in: 12:00 PM
+Good morning!
+${etDateStr} 
+Time In 12PM`;
 
-        try {
-            await navigator.clipboard.writeText(attendanceText);
+        navigator.clipboard.writeText(attendanceText).then(() => {
             const btn = document.querySelector('.sl-green');
             btn.innerText = "✓";
             setTimeout(() => btn.innerText = "+", 2000);
-        } catch(e) {}
+        });
+    }
+
+    function updateSnoozedCount() {
+        const count = document.querySelectorAll('.tt-item').length;
+        document.getElementById('snoozed-count').innerText = count;
+    }
+
+    function clearAllSnoozed() {
+        if (confirm("Clear all active snoozed tickets from the list?")) {
+            Object.keys(ticketIntervals).forEach(num => {
+                clearInterval(ticketIntervals[num]);
+                delete ticketIntervals[num];
+            });
+            document.getElementById('tt-list').innerHTML = '';
+            saveTicketsToStorage();
+            updateSnoozedCount();
+        }
     }
 
     function saveTicketsToStorage() {
@@ -253,8 +282,9 @@
         document.querySelectorAll('.tt-item').forEach(item => {
             list.push({ num: item.dataset.num, expiry: parseInt(item.dataset.expiry) });
         });
-        localStorage.setItem('snoozedTickets', JSON.stringify(list));
-        updateSnoozeCount();
+        try {
+            localStorage.setItem('snoozedTickets', JSON.stringify(list));
+        } catch(e) { console.error("Could not save list", e); }
     }
 
     function addLiveTicket() {
@@ -264,7 +294,10 @@
         if(!num) return;
 
         const existing = document.querySelector(`.tt-item[data-num="${num}"]`);
-        if (existing) existing.remove();
+        if (existing) {
+            if (ticketIntervals[num]) clearInterval(ticketIntervals[num]);
+            existing.remove();
+        }
 
         const hours = toggle.checked ? 2 : 24;
         const expiry = Date.now() + (hours * 60 * 60 * 1000);
@@ -278,33 +311,62 @@
         item.className = 'tt-item';
         item.dataset.num = num;
         item.dataset.expiry = expiry;
-        item.dataset.beeped = "false";
         
         item.innerHTML = `
-            <div class="tt-item-left" style="display: flex; align-items: center; gap: 10px;">
-                <button class="stoplight sl-red" title="Delete" onclick="event.stopPropagation(); this.closest('.tt-item').remove(); saveTicketsToStorage();">×</button>
-                <span class="tt-item-num" style="font-weight:800; font-size:14px; color:#007aff;">#${num}</span>
+            <div class="tt-item-left">
+                <button class="stoplight sl-red" title="Delete">×</button>
+                <span class="tt-item-num">#${num}</span>
             </div>
             <span class="tt-item-timer">--:--:--</span>
         `;
         
         list.prepend(item);
         if(isNew) saveTicketsToStorage();
-        updateSnoozeCount();
+        updateSnoozedCount();
 
-        item.onclick = async () => {
-            const timerText = item.querySelector('.tt-item-timer');
+        const closeBtn = item.querySelector('.sl-red');
+        const timerText = item.querySelector('.tt-item-timer');
+        let beeped = false;
+        
+        ticketIntervals[num] = setInterval(() => {
+            const diff = expiry - Date.now();
+            if (diff <= 0) {
+                if (!beeped && isNew) { playSpecificBeeps(2); beeped = true; }
+                timerText.innerText = "DONE";
+                item.classList.add('alarm-active');
+            } else {
+                const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                timerText.innerText = `${h}:${m}:${s}`;
+            }
+        }, 1000);
+
+        item.onclick = async (e) => {
+            if (e.target === closeBtn) return;
             try {
                 await navigator.clipboard.writeText(num);
                 const originalText = timerText.innerText;
                 timerText.innerText = "COPIED!";
                 setTimeout(() => timerText.innerText = originalText, 1000);
-            } catch (err) {}
+            } catch (err) { console.error('Copy failed', err); }
 
             if (item.classList.contains('alarm-active')) {
+                clearInterval(ticketIntervals[num]);
+                delete ticketIntervals[num];
                 item.remove();
                 saveTicketsToStorage();
+                updateSnoozedCount();
             }
+        };
+
+        closeBtn.onclick = (e) => {
+            e.stopPropagation(); 
+            clearInterval(ticketIntervals[num]);
+            delete ticketIntervals[num];
+            item.remove();
+            saveTicketsToStorage();
+            updateSnoozedCount();
         };
     }
 
@@ -331,14 +393,22 @@
     function handleStop(index, minutes) {
         document.getElementById(`card-${index}`).classList.remove('alarm-active');
         document.getElementById(`stop-${index}`).style.display = 'none';
+        
         initAudio();
 
         if (index === 2) {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Good job today, Benjo! Don't forget to screenshot Hub Staff."));
+            const msg = new SpeechSynthesisUtterance("Good job today, Benjo! Don't forget to screenshot Hub Staff.");
+            window.speechSynthesis.speak(msg);
+
             const etDateStr = getETDate();
-            navigator.clipboard.writeText(`Good night!\n${etDateStr}\nTime out 9PM`);
+            const signOffText = `Good night!
+${etDateStr} 
+Time out 9PM`;
+            navigator.clipboard.writeText(signOffText);
         } else if (minutes > 0) {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Enjoy your ${index === 0 ? '1st' : '2nd'} break, Benjo. Timer started.`));
+            const breakName = (index === 0) ? "1st break" : "2nd break";
+            const msg = new SpeechSynthesisUtterance("Enjoy your " + breakName + ", Benjo. Timer started.");
+            window.speechSynthesis.speak(msg);
             startTimer(index, minutes * 60);
         }
     }
@@ -359,19 +429,21 @@
         document.getElementById(`tstop-${index}`).style.display = 'none';
         
         initAudio();
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance("Welcome back Benjo! Please don't forget to start Hubstaff."));
-        card.style.display = 'none';
+        if (index === 0 || index === 1) {
+            const msg = new SpeechSynthesisUtterance("Welcome back Benjo! Please don't forget to start Hubstaff.");
+            window.speechSynthesis.speak(msg);
+            card.style.display = 'none';
+        }
     }
 
     function updateClocks() {
         const now = getManilaTime();
-        const nowMs = now.getTime();
         document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         document.getElementById('date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
 
         [0, 1, 2].forEach(index => {
             if (activeTimers[index]) {
-                const diff = activeTimers[index] - nowMs;
+                const diff = activeTimers[index] - getManilaTime().getTime();
                 if (diff <= 0) {
                     document.getElementById(`timer-${index}`).innerText = "0:00";
                     delete activeTimers[index];
@@ -403,28 +475,6 @@
                 alarmsTriggered[index] = true;
             }
         });
-
-        document.querySelectorAll('.tt-item').forEach(item => {
-            const expiry = parseInt(item.dataset.expiry);
-            const diff = expiry - nowMs;
-            const timerText = item.querySelector('.tt-item-timer');
-
-            if (diff <= 0) {
-                if (item.dataset.beeped === "false") {
-                    playSpecificBeeps(2);
-                    item.dataset.beeped = "true";
-                }
-                timerText.innerText = "DONE";
-                item.classList.add('alarm-active');
-                item.classList.remove('low-time');
-            } else {
-                const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-                const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                timerText.innerText = `${h}:${m}:${s}`;
-                if (diff < 900000) item.classList.add('low-time');
-            }
-        });
     }
 
     setInterval(updateClocks, 1000);
@@ -446,9 +496,11 @@
     window.onload = () => {
         applyDefaults();
         updateClocks();
-        const savedItems = JSON.parse(localStorage.getItem('snoozedTickets')) || [];
-        savedItems.forEach(t => createTicketItem(t.num, t.expiry, false));
-        updateSnoozeCount();
+        try {
+            const savedItems = JSON.parse(localStorage.getItem('snoozedTickets')) || [];
+            savedItems.forEach(t => createTicketItem(t.num, t.expiry, false));
+            updateSnoozedCount();
+        } catch (e) { console.error("Storage Access Denied", e); }
     };
 </script>
 </body>
