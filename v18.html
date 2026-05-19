@@ -309,8 +309,8 @@ Time In 12PM`;
         const list = document.getElementById('tt-list');
         const item = document.createElement('div');
         item.className = 'tt-item';
-        item.dataset.num = num;
-        item.dataset.expiry = expiry;
+        item.setAttribute('data-num', num);
+        item.setAttribute('data-expiry', expiry);
         
         item.innerHTML = `
             <div class="tt-item-left">
@@ -320,7 +320,7 @@ Time In 12PM`;
             <span class="tt-item-timer">--:--:--</span>
         `;
         
-        list.prepend(item);
+        list.insertBefore(item, list.firstChild);
         if(isNew) saveTicketsToStorage();
         updateSnoozedCount();
 
@@ -343,12 +343,12 @@ Time In 12PM`;
         }, 1000);
 
         item.onclick = async (e) => {
-            if (e.target === closeBtn) return;
+            if (e.target.closest('.sl-red')) return;
             try {
                 await navigator.clipboard.writeText(num);
                 const originalText = timerText.innerText;
                 timerText.innerText = "COPIED!";
-                setTimeout(() => timerText.innerText = originalText, 1000);
+                setTimeout(() => { if (timerText) timerText.innerText = originalText; }, 1000);
             } catch (err) { console.error('Copy failed', err); }
 
             if (item.classList.contains('alarm-active')) {
