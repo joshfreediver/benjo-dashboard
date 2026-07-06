@@ -459,10 +459,39 @@ Time out 9PM`;
             const countDisp = document.getElementById(`count-${index}`);
             if (!picker.value || countDisp.style.display === 'none') return;
             const diff = new Date(picker.value) - now;
-            if (diff > 0 && diff <= 300000 && !fiveMinWarningTriggered[index]) {
-                if (index < 2) window.speechSynthesis.speak(new SpeechSynthesisUtterance("Benjo, 5 minutes to break. Wrap up your ticket."));
-                fiveMinWarningTriggered[index] = true;
-            }
+            // 5-minute warning for breaks
+if ((index === 0 || index === 1) &&
+    diff > 0 &&
+    diff <= 300000 &&
+    !fiveMinWarningTriggered[index]) {
+
+    window.speechSynthesis.cancel();
+
+    const msg = new SpeechSynthesisUtterance(
+        "Benjo, 5 minutes to break. Wrap up your ticket."
+    );
+    msg.lang = "en-US";
+    window.speechSynthesis.speak(msg);
+
+    fiveMinWarningTriggered[index] = true;
+}
+
+// 6-minute warning for end shift
+if (index === 2 &&
+    diff > 0 &&
+    diff <= 360000 &&
+    !fiveMinWarningTriggered[index]) {
+
+    window.speechSynthesis.cancel();
+
+    const msg = new SpeechSynthesisUtterance(
+        "Benjo, 6 minutes before end of shift. Please finish your current ticket and prepare to log out."
+    );
+    msg.lang = "en-US";
+    window.speechSynthesis.speak(msg);
+
+    fiveMinWarningTriggered[index] = true;
+}
             if (diff > 0) {
                 const h = Math.floor(diff/3600000).toString().padStart(2,'0');
                 const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
