@@ -517,7 +517,7 @@ if (index === 2 &&
             return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0, 16);
         };
         document.querySelectorAll('.time-picker').forEach((p, i) => { 
-            const defs = [setT(3, 30), setT(5, 30), setT(9, 0)];
+            const defs = [setT(3, 00), setT(5, 30), setT(9, 0)];
             if(!p.value) p.value = defs[i]; 
         });
     }
