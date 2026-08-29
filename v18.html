@@ -476,10 +476,10 @@ if ((index === 0 || index === 1) &&
     fiveMinWarningTriggered[index] = true;
 }
 
-// 6-minute warning for end shift
+// 5-minute warning for end shift
 if (index === 2 &&
     diff > 0 &&
-    diff <= 360000 &&
+    diff <= 300000 &&
     !fiveMinWarningTriggered[index]) {
 
     window.speechSynthesis.cancel();
