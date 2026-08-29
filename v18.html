@@ -485,7 +485,7 @@ if (index === 2 &&
     window.speechSynthesis.cancel();
 
     const msg = new SpeechSynthesisUtterance(
-        "Benjo, 6 minutes before end of shift. Please finish your current ticket and prepare to log out."
+        "Benjo, 5 minutes before end of shift. Please finish your current ticket and prepare to log out."
     );
     msg.lang = "en-US";
     window.speechSynthesis.speak(msg);
@@ -493,8 +493,8 @@ if (index === 2 &&
     fiveMinWarningTriggered[index] = true;
 }
             if (diff > 0) {
-                const h = Math.floor(diff/3600000).toString().padStart(2,'0');
-                const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+                const h = Math.floor(diff/3000000).toString().padStart(2,'0');
+                const m = Math.floor((diff%3000000)/60000).toString().padStart(2,'0');
                 const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
                 countDisp.innerText = `${h}:${m}:${s}`;
             } else if (!alarmsTriggered[index]) {
